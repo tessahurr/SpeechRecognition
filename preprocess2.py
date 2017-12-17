@@ -96,7 +96,7 @@ def preprocess2(filename):
 				word = num2words(int(word), ordinal=True)
 				word = word.replace("-", " ")
 			if word == "." or word == "?" or word == "!":
-				f_out.write(word)
+				f_out.write(word + "\n")
 			else: 
 				f_out.write(" " + word)
 
