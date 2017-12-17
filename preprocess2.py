@@ -56,6 +56,7 @@ def preprocess2(filename):
 	# I opened the file all at once b/c it was easier to parse this way, but 
 	# for a larger file it would be neccesary to buffer in some way
 	f_in = open("./Gutenberg/txt/"+filename, 'r+', encoding="ISO-8859-1")
+#	f_in = open("test.txt", 'r+', encoding="ISO-8859-1")
 	f_out = open("thatFile.txt", 'a')
 
 	text = f_in.read()
@@ -66,6 +67,7 @@ def preprocess2(filename):
 	# replace curly single quotes with straight single quotes
 	text = text.replace("‘", "'")
 	text = text.replace("’", "'")
+#	text = text.replace("_", " ")
 
 	# preserve punctuation with split
 	text = text.replace(".",".<stop>")
@@ -73,6 +75,9 @@ def preprocess2(filename):
 	text = text.replace("!","!<stop>")
 	#text = re.sub(r"^[a-zA-Z0-9]+[\^\']*[a-zA-Z0-9]+[\^\']*[a-zA-Z0-9]*", "", text)
 	text = re.sub(r"[a-zA-Z]+[0-9]+", "", text)
+	text = re.sub(r"[0-9]+[il]", "[0-9]+[1]", text)
+	text = re.sub(r"[0-9]+[oO]", "[0-9]+[0]", text)
+	text = re.sub(r"[0-9]+[']+[0-9]*", "[0-9]+[ ]+[0-9]*", text)
 	text = text.replace("\n", " ")
 	sentences += re.split("<stop>", text)
 
@@ -82,24 +87,55 @@ def preprocess2(filename):
 
 	num_list = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 	ordinal_list = ["rd", "th", "nd", "st", "TH", "RD", "ND", "ST"]
-
+	ordinal_list_ = ["_rd", "_th", "_nd", "_st", "_TH", "_RD", "_ND", "_ST"]
 
 	for sentence in all_words:
-		for word in sentence:	
+		for word in sentence:
+#			word = word.replace("_","")	
 			if word[0] in num_list and word[-1] in num_list:
-				word = int_to_en(int(word))
-				if ValueError:
-					pass	
+				word = int_to_en(int(word))	
+			if word[0] in num_list and word[-3:] in ordinal_list_:
+                                word = word[:-3]
+                                #word = re.findall('(\d+(st|nd|rd|th))', word)
+                                word = num2words(int(word), ordinal=True)
+                                word = word.replace("-", " ")
 			if word[0] in num_list and word[-2:] in ordinal_list:
 				word = word[:-2]
 				#word = re.findall('(\d+(st|nd|rd|th))', word)
 				word = num2words(int(word), ordinal=True)
 				word = word.replace("-", " ")
-			if word == "." or word == "?" or word == "!":
-				f_out.write(word + "\n")
-			else: 
-				f_out.write(" " + word)
+		#	if word == "." or word == "?" or word == "!":
+		#		f_out.write(word + "\n")
+#			for char in word:
+#				char = char.replace("_", "")
+		#	else: 
+#				word = word.replace("_", " ")
+		#		f_out.write(" " + word)
+				#word = (" " + word)
+			#word = word.replace("_", " ")
+			#f_out.write(" " + word)
 
+	for sentence in all_words:
+		for word in sentence:
+			if "_" in word:
+				word = word.replace("_", "")
+			if word == "." or word == "?" or word == "!":
+                                f_out.write(word + "\n")
+			else:
+                        	f_out.write(" " + word)	
+	# f2_in = open("thatFile.txt", 'r+', encoding="ISO-8859-1")
+	# f2_out = open("thatOtherFile.txt", "a")
+
+	#for line in f2_in:
+	#	for char in line:
+	#		char = char.replace("_", "")
+	#		f2_out.write(char)
+
+	
+	#f2_in.close()
+	#f2_out.close()
+	f_in.close()
+	f_out.close()
 
 for f in os.listdir("./Gutenberg/txt/"):
 	print(f)
